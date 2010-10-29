@@ -1,0 +1,76 @@
+<!DOCTYPE HTML>
+<html>
+	<head>
+		<meta charset="UTF-8">
+
+		<script src="/javascripts/prototype.js"></script>
+		<script>
+
+			var ws;
+
+			document.observe("dom:loaded", function(){
+				if ("WebSocket" in window) {
+
+					ws = new WebSocket("ws://10.1.1.108:8080");
+					//ws = new WebSocket("ws://192.168.123.155:8080");
+
+					ws.onopen = function() {
+						//
+						console.debug("hello");
+					}
+
+					ws.onmessage = function(evt) {
+						var msg = evt.data;
+
+						var msg_div = document.createElement("div");
+						msg_div.innerHTML = msg;
+
+						$("chat_history").appendChild(msg_div);
+					}
+
+					ws.onclose = function() {
+						alert("Thanks!! Bye~");
+					}
+
+				} else {
+					alert("WebSocket NOT supported by your Browser!");
+				}
+
+
+
+
+				Event.observe("chat_window", "submit", function(evt){
+					evt.stop();
+					ws.send(Form.Element.getValue("comment"));
+					Form.Element.setValue("comment", "");
+				});
+
+			});
+
+			Element.observe(window, "unload", function(){
+				ws.close();
+			});
+
+		</script>
+	</head>
+	<body>
+
+		<div id="chat_history"></div>
+
+		<form id="chat_window">
+			<!--
+			<div>
+				이름:
+				<input type="text" id="name" />
+			</div>
+			-->
+			<div>
+				의견:
+				<input type="text" id="comment" size="50" />
+			</div>
+
+			<input type="submit" value="전송" />
+		</form>
+
+	</body>
+</html>
